@@ -1,4 +1,4 @@
-# Travel Agency 
+# ✈️ Travel Agency 
 
 > Short summary
 > Built a lightweight, privacy-minded conversational system for a travel agency to qualify and capture leads for city tours and travel services. The bot handled initial qualification, captured contact info, and handed off warm leads to a human agent for quoting and booking. This README highlights the problem, the solution, results and lessons — suitable to show to recruiters or stakeholders without exposing implementation details.
