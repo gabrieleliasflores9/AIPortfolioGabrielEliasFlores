@@ -63,11 +63,113 @@ High-level stack (no step-by-step instructions included here):
 
 ## 📸 Demo / Workflow
 
-### 1. The Automation Logic (Make)
+### 1. System Architecture
+> The following diagram illustrates the data flow from initial user contact to final lead storage. It highlights how the orchestration layer (n8n/Make) acts as middleware between the frontend chat interface (ManyChat) and the logic/storage layers (OpenAI, Supabase)
+
+#### 1.1 Conversation Logic (User Flow)
+<details>
+<summary>🔎 Click to view the detailed conversation decision tree</summary>
+
+```mermaid
+graph LR
+    %% Frontend Layer
+    subgraph Frontend["🌐 Frontend / User Channels"]
+        U[Usuario] --> IG[Instagram DM]
+        U --> WA[WhatsApp]
+    end
+    
+    %% API Gateway
+    subgraph APIGateway["📡 API Gateway"]
+        MC[ManyChat API]
+        WP[Whapi API]
+    end
+    
+    %% Middleware / Orchestration
+    subgraph Middleware["🧠 Middleware / Backend"]
+        N8N[n8n Workflow Engine]
+        WH[Webhook Handler]
+        Router[Message Router]
+    end
+    
+    %% AI Intelligence Layer
+    subgraph AILayer["🤖 AI Intelligence Layer"]
+        OAI[OpenAI API<br/>Intent Classification]
+        GEM[Gemini API<br/>Entity Extraction]
+        PROC[Response Generator]
+    end
+    
+    %% Data Layer
+    subgraph DataLayer["💾 Data Layer"]
+        SB[(Supabase<br/>Primary Storage)]
+        AT[(Airtable<br/>Analytics & CRM)]
+    end
+    
+    %% Human Handoff
+    subgraph Handoff["👤 Human Agent Layer"]
+        TG[Telegram Bot<br/>Agent Notification]
+        AGENT[Human Agent Dashboard]
+    end
+    
+    %% Connections - Frontend to API
+    IG -->|Incoming Message| MC
+    WA -->|Incoming Message| WP
+    
+    %% API to Middleware
+    MC -->|Webhook POST| WH
+    WP -->|Webhook POST| WH
+    WH --> N8N
+    N8N --> Router
+    
+    %% Middleware to AI
+    Router -->|Raw Text| OAI
+    Router -->|Raw Text| GEM
+    OAI -->|Intent + Confidence| PROC
+    GEM -->|Entities| PROC
+    PROC -->|Structured Response| N8N
+    
+    %% Middleware to Data
+    N8N -->|Store Lead Data| SB
+    N8N -->|Store Interaction| SB
+    N8N -->|Sync Analytics| AT
+    SB -.->|Read Historical Data| N8N
+    
+    %% Response Flow
+    N8N -->|Send Reply| MC
+    N8N -->|Send Reply| WP
+    MC -->|Deliver| IG
+    WP -->|Deliver| WA
+    
+    %% Handoff Logic
+    N8N -->|Complex Query Detected| TG
+    N8N -->|Ready for Quote| TG
+    TG -->|Notify| AGENT
+    AGENT -.->|Read Context| SB
+    AGENT -.->|Update Lead Status| AT
+    
+    %% Styling
+    classDef frontend fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef api fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    classDef middleware fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef ai fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
+    classDef data fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+    classDef human fill:#fff9c4,stroke:#f57f17,stroke-width:2px
+    
+    class U,IG,WA frontend
+    class MC,WP api
+    class N8N,WH,Router middleware
+    class OAI,GEM,PROC ai
+    class SB,AT data
+    class TG,AGENT human
+
+```
+
+Note: A sanitized version of the workflow blueprint (Appointment Assistant.blueprint.json) is available for review in the repo files.
+
+### 2. The Automation Logic (Make)
 
 <img width="960" height="423" alt="2025-12-06 (6)" src="https://github.com/user-attachments/assets/87c7cbf6-e655-4127-8d27-dfaa63f6fd96" />
 
-### 2. The Messaging flows (Manychat)
+### 3. The Messaging flows (Manychat)
 
 <img width="910" height="357" alt="2025-12-06 (7)" src="https://github.com/user-attachments/assets/58b792e9-420d-4caa-8bcb-29fcfc716a0f" />
 
