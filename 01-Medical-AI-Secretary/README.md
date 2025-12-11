@@ -63,6 +63,8 @@ WhatsApp (patient) → WhatsApp BSP (Evolution / ManyChat) → NLP layer/HTTPS/W
 ### 1. The Automation Logic (n8n)
 ![workflown8n1](https://github.com/user-attachments/assets/b73ab5a0-821b-4319-b685-9da2a04a5378)
 
+Note: A sanitized version of the workflow blueprint (Appointment Assistant.blueprint.json) is available for review in the repo files.
+
 ### 2. Patient Experience (WhatsApp)
 ![capturawhatsapp](https://github.com/user-attachments/assets/69ea9e49-6754-417a-aa5b-9425e2145aba)
 
