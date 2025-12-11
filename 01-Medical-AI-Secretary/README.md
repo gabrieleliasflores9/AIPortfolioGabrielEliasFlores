@@ -60,15 +60,131 @@ WhatsApp (patient) → WhatsApp BSP (Evolution / ManyChat) → NLP layer/HTTPS/W
 
 ## 📸 Demo / Workflow
 
-### 1. The Automation Logic (n8n)
+### 1. System Architecture
+> The following diagram illustrates the data flow from initial user contact to final lead storage. It highlights how the orchestration layer (n8n) acts as middleware between the frontend chat interface (Evolution API) and the logic/storage layers (OpenAI, Gemini, Supabase, Redis, Postgres)
+
+#### 1.1 Conversation Logic (User Flow)
+<details>
+<summary>🔎 Click to view the detailed conversation decision tree</summary>
+
+```mermaid
+graph LR
+    %% Frontend Layer
+    subgraph Frontend["🌐 User Channels"]
+        U[User] --> WA[WhatsApp]
+        U --> WA[WhatsApp]
+    end
+    
+    %% API Gateway
+    subgraph APIGateway["📡 API Gateway"]
+        MC[Evolution API]
+        WP[Evolution API]
+    end
+    
+    %% Middleware / Orchestration
+    subgraph Middleware["🧠 Middleware / Backend"]
+        N8N[n8n Workflow Engine]
+        WH[Webhook Handler]
+        Router[Message Router]
+    end
+    
+    %% AI Intelligence Layer
+    subgraph AILayer["🤖 AI Intelligence Layer"]
+        OAI[OpenAI API<br/>Intent Classification]
+        GEM[Gemini API<br/>Entity Extraction]
+        PROC[Response Generator]
+    end
+    
+    %% Memory & Cache Layer
+    subgraph MemoryLayer["⚡ Memory & Cache"]
+        REDIS[(Redis<br/>Temporal Message Cache)]
+        PSQL[(PostgreSQL<br/>Conversation Memory)]
+    end
+    
+    %% Data Layer
+    subgraph DataLayer["💾 Data Persistence"]
+        SB[(Supabase<br/>Primary Storage)]
+        AT[(Airtable<br/>Analytics & CRM)]
+    end
+    
+    %% Human Handoff
+    subgraph Handoff["👤 Human Agent Layer"]
+        TG[Telegram Bot<br/>Agent Notification]
+        AGENT[Human Agent Dashboard]
+    end
+    
+    %% Connections - Frontend to API
+    IG -->|Incoming Message| MC
+    WA -->|Incoming Message| WP
+    
+    %% API to Middleware
+    MC -->|Webhook POST| WH
+    WP -->|Webhook POST| WH
+    WH --> N8N
+    N8N --> Router
+    
+    %% Middleware to Memory (Store Every Message)
+    Router -->|Cache Message| REDIS
+    Router -->|Store Conversation| PSQL
+    
+    %% Middleware to AI
+    Router -->|Raw Text + Context| OAI
+    Router -->|Raw Text + Context| GEM
+    PSQL -.->|Load Conversation History| Router
+    REDIS -.->|Get Recent Messages| Router
+    
+    OAI -->|Intent + Confidence| PROC
+    GEM -->|Entities Extracted| PROC
+    PROC -->|Structured Response| N8N
+    
+    %% Middleware to Persistent Data
+    N8N -->|Save Lead Info| SB
+    N8N -->|Save Interaction Log| SB
+    N8N -->|Sync Analytics| AT
+    SB -.->|Query Historical Data| N8N
+    
+    %% Response Flow via Webhooks
+    N8N -->|Send Reply via Webhook| MC
+    N8N -->|Send Reply via Webhook| WP
+    MC -->|Deliver to User| IG
+    WP -->|Deliver to User| WA
+    
+    %% Handoff Logic
+    N8N -->|Complex Query Detected| TG
+    N8N -->|Ready for Quote| TG
+    TG -->|Notify Agent| AGENT
+    AGENT -.->|Read Full Context| SB
+    AGENT -.->|Read Conversation| PSQL
+    AGENT -.->|Update Lead Status| AT
+    
+    %% Styling
+    classDef frontend fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef api fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    classDef middleware fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef ai fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
+    classDef memory fill:#e0f2f1,stroke:#00796b,stroke-width:2px
+    classDef data fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+    classDef human fill:#fff9c4,stroke:#f57f17,stroke-width:2px
+    
+    class U,WA frontend
+    class MC,WP api
+    class N8N,WH,Router middleware
+    class OAI,GEM,PROC ai
+    class REDIS,PSQL memory
+    class SB,AT data
+    class TG,AGENT human
+
+```
+
+### 2. The Automation Logic (n8n)
 ![workflown8n1](https://github.com/user-attachments/assets/b73ab5a0-821b-4319-b685-9da2a04a5378)
 
-Note: A sanitized version of the workflow blueprint (Appointment Assistant.blueprint.json) is available for review in the repo files.
+Note: A sanitized version of the workflow blueprint with a few different changes (Mainly based on Airtable Modules) and the placeholder [Replace] to personalized (Appointment Assistant.blueprint.json) is available for review in the repo files.
 
-### 2. Patient Experience (WhatsApp)
+### 3. Patient Experience (WhatsApp)
 ![capturawhatsapp](https://github.com/user-attachments/assets/69ea9e49-6754-417a-aa5b-9425e2145aba)
 
-### 3. Admin View (Chatwoot Handoff)
+### 4. Admin View (Chatwoot Handoff)
 ![statisticscrm2025](https://github.com/user-attachments/assets/c07ad0a0-0557-415a-8485-eaf9dfad294b)
 
 ---
