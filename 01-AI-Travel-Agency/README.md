@@ -163,7 +163,6 @@ graph LR
 
 ```
 
-Note: A sanitized version of the workflow blueprint (Appointment Assistant.blueprint.json) is available for review in the repo files.
 
 ### 2. The Automation Logic (Make)
 
