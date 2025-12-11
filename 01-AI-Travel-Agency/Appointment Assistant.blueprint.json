@@ -1,5 +1,5 @@
 {
-    "name": "Appointment Assistant Marco Serrano",
+    "name": "Appointment Assistant ",
     "flow": [
         {
             "id": 211,
@@ -96,7 +96,7 @@
                                 "scoped": "true",
                                 "connection": "airtable3"
                             },
-                            "label": "My Airtable OAuth connection (User ID: usrLrYe0gMXsyzV4L)"
+                            "label": "My Airtable OAuth connection (User ID: )"
                         }
                     }
                 },
